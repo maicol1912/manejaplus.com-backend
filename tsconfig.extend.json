@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+      "baseUrl": "./",
+      "paths": {
+          
+          "@authentication/*": ["src/modules/authentication/*"],
+          "@authentication/application/*": ["src/modules/authentication/application/*"],
+          "@authentication/domain/*": ["src/modules/authentication/domain/*"],
+          "@authentication/infraestructure/*": ["src/modules/authentication/infraestructure/*"],
+
+          "@orders/*": ["src/modules/orders/*"],
+          "@orders/application/*": ["src/modules/orders/application/*"],
+          "@orders/domain/*": ["src/modules/orders/domain/*"],
+          "@orders/infraestructure/*": ["src/modules/orders/infraestructure/*"],
+
+          "@organizations/*": ["src/modules/organizations/*"],
+          "@organizations/application/*": ["src/modules/organizations/application/*"],
+          "@organizations/domain/*": ["src/modules/organizations/domain/*"],
+          "@organizations/infraestructure/*": ["src/modules/organizations/infraestructure/*"],
+
+          "@payments/*": ["src/modules/payments/*"],
+          "@payments/application/*": ["src/modules/payments/application/*"],
+          "@payments/domain/*": ["src/modules/payments/domain/*"],
+          "@payments/infraestructure/*": ["src/modules/payments/infraestructure/*"],
+
+          "@products/*": ["src/modules/products/*"],
+          "@products/application/*": ["src/modules/products/application/*"],
+          "@products/domain/*": ["src/modules/products/domain/*"],
+          "@products/infraestructure/*": ["src/modules/products/infraestructure/*"],
+
+          "@reports/*": ["src/modules/reports/*"],
+          "@reports/application/*": ["src/modules/reports/application/*"],
+          "@reports/domain/*": ["src/modules/reports/domain/*"],
+          "@reports/infraestructure/*": ["src/modules/reports/infraestructure/*"],
+
+          "@supports/*": ["src/modules/support/*"],
+          "@supports/application/*": ["src/modules/supports/application/*"],
+          "@supports/domain/*": ["src/modules/supports/domain/*"],
+          "@supports/infraestructure/*": ["src/modules/supports/infraestructure/*"],
+
+          "@lib/aws/*": ["src/libs/aws/*"],
+          "@lib/elastick-stack/*": ["src/libs/elastick-stack/*"],
+          "@lib/gpt/*": ["src/libs/gpt/*"],
+          "@lib/oauth/*": ["src/libs/oauth/*"],
+          "@lib/postgres/*": ["src/libs/postgres/*"],
+          "@lib/rabbitmq/*": ["src/libs/rabbitmq/*"],
+          "@lib/redis/*": ["src/libs/redis/*"],
+        
+
+      }
+  }
+}
