@@ -1,9 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src/app/src",
+  "sourceRoot": "",
   "compilerOptions": {
     "deleteOutDir": true,
+    "watchAssets": true,
+    "assets": [
+      {
+        "include": "**/*.proto",
+        "watchAssets": true
+      },
+      {
+        "include": "**/*.hbs",
+        "watchAssets": true
+      },
+      "certs",
+      "config"
+    ],
     "webpack": false,
     "tsConfigPath": "tsconfig.build.json"
   },
@@ -32,16 +45,6 @@
   },
   "monorepo": true,
   "root": "src/",
-  "assets": [
-    {
-      "include": "**/*.proto",
-      "watchAssets": true
-    },
-    {
-      "include": "**/*.hbs",
-      "watchAssets": true
-    }
-  ],
   "watchAssets": true,
   "plugins": [
     {

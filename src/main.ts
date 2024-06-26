@@ -2,7 +2,6 @@ import config from 'config';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { raw } from 'express';
 import { INestApplication } from '@nestjs/common';
 import path from 'path';
 import fs from 'fs';
