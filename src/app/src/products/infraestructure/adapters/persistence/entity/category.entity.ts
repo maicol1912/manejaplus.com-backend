@@ -15,8 +15,8 @@ export class CategoryEntity {
   public status: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  public updatedAt: Date;
 }
