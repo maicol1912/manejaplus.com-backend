@@ -4,7 +4,8 @@ import { ProductsModule } from '@app/products';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from '@app/typeorm/application/config/typeorm.config';
 import { TypeormConnectionModule } from '@app/typeorm/typeorm.module';
-import { UsersModule } from '@app/organizations';
+import { AuthenticationModule } from '@app/authentication';
+import { UsersModule } from '@app/organizations/users/users.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { UsersModule } from '@app/organizations';
     }),
     TypeormConnectionModule,
     ProductsModule,
-    UsersModule
+    UsersModule,
+    AuthenticationModule
   ],
   controllers: [HealthController],
   providers: []

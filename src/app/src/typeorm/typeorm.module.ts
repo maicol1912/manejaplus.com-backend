@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SchemaService } from './application/services/schema.service';
-import { TypeOrmController } from './infraestructure/web/controllers/typeorm.controller';
+import { TenantService } from './application/services/tenant.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmController } from './infraestructure/adapters/web/controllers/typeorm.controller';
 
 @Module({
-  imports: [],
+  imports: [TypeOrmModule.forFeature(TenantService.loadEntitiesInSchemaPublic())],
   controllers: [TypeOrmController],
-  providers: [SchemaService]
+  providers: [TenantService]
 })
 export class TypeormConnectionModule {}

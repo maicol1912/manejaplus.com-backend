@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
 
-@Entity({ name: 'category' })
+@Entity({ name: 'mps_category' })
 class CategoryEntity {
   @PrimaryColumn({ length: 3 })
   private code: string;

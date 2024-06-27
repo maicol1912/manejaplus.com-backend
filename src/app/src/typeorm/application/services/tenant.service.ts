@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, DataSourceOptions, EntityMetadata } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import * as typeormConstant from '../config/constant/typeorm.constants';
-import * as glob from 'glob';
 import { getMetadataArgsStorage } from 'typeorm';
 
 @Injectable()
-export class SchemaService {
+export class TenantService {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async createSchemaClient(schemaName: string) {
@@ -64,6 +63,28 @@ export class SchemaService {
       });
 
       return entities.filter(entity => !entitiesToExcludeInClientSchema.includes(entity.name));
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  static loadEntitiesInSchemaPublic(): Function[] {
+    try {
+      const metadataArgsStorage = getMetadataArgsStorage();
+      const entityMetadatas = metadataArgsStorage.tables;
+
+      const entities = entityMetadatas
+        .filter(metadata => metadata.target instanceof Function)
+        .map(metadata => metadata.target as Function);
+
+      const entitiesToExcludeInClientSchema = typeormConstant.ENTITIES_SCHEMA_PUBLIC.map(entity => {
+        const classString = entity.toString();
+        const match = classString.match(/class\s+(\w+)/);
+        return match ? match[1] : '';
+      });
+
+      return entities.filter(entity => entitiesToExcludeInClientSchema.includes(entity.name));
     } catch (error) {
       console.error(error);
       return [];
