@@ -7,24 +7,22 @@ import {
 } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'mps_role' })
-class RoleEntity {
+export class RoleEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  public id: string;
 
   @Column({ unique: true, nullable: false, type: 'varchar', length: 50 })
-  name: string;
+  public name: string;
 
   @Column({ nullable: false, type: 'varchar', length: 200 })
-  description: string;
+  public description: string;
 
   @Column({ default: true, nullable: false })
-  status: boolean;
+  public status: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  public updatedAt: Date;
 }
-
-export { RoleEntity };

@@ -8,18 +8,14 @@ export class ProductService {
   constructor(@InjectEntityManager() private readonly entityManager: EntityManager) {}
 
   async findAll(tenant: string): Promise<ProductEntity[]> {
-    // Cambia el esquema en el EntityManager antes de realizar la consulta
     await this.entityManager.query(`SET search_path TO ${tenant}`);
 
-    // Realiza la consulta utilizando el EntityManager
     return await this.entityManager.find(ProductEntity);
   }
 
   async findById(id: number, tenant: string): Promise<ProductEntity> {
-    // Cambia el esquema en el EntityManager antes de realizar la consulta
     await this.entityManager.query(`SET search_path TO ${tenant}`);
 
-    // Realiza la consulta utilizando el EntityManager
     return await this.entityManager.findOne(ProductEntity, { where: { id } });
   }
 

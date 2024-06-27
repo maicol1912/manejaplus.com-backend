@@ -1,31 +1,46 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn
+} from 'typeorm';
 
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
   @Column({ type: 'varchar', length: 100 })
-  name: string;
+  public name: string;
 
   @Column({ type: 'varchar', length: 100, unique: true })
-  email: string;
+  public email: string;
 
   @Column({ type: 'varchar', length: 100 })
-  password: string;
+  public password: string;
 
   @Column({ type: 'varchar', length: 20 })
-  phone: string;
+  public phone: string;
 
   @Column({ type: 'varchar', length: 10 })
-  otp: string;
+  public otp: string;
 
   @Column({ type: 'int', default: 0 })
-  attemptsFailed: number;
+  public attemptsFailed: number;
 
   @Column({ type: 'boolean', default: false })
-  isVerified: boolean;
+  public isVerified: boolean;
 
   @Column({ type: 'boolean', default: false })
-  isBlocked: boolean;
+  public isBlocked: boolean;
+
+  @Column({ default: true, nullable: false })
+  public status: boolean;
+
+  @CreateDateColumn()
+  public createdAt: Date;
+
+  @UpdateDateColumn()
+  public updatedAt: Date;
 }

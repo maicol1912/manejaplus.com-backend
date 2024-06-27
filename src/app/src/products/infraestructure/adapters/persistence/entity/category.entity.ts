@@ -1,18 +1,22 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity({ name: 'mps_category' })
-class CategoryEntity {
+export class CategoryEntity {
   @PrimaryColumn({ length: 3 })
-  private code: string;
+  public code: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
-  private name: string;
+  public name: string;
 
   @Column({ type: 'text', nullable: false })
-  private description: string;
+  public description: string;
 
   @Column({ type: 'boolean', default: true, nullable: false })
-  private status: boolean;
-}
+  public status: boolean;
 
-export { CategoryEntity };
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}

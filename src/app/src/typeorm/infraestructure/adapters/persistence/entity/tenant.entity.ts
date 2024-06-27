@@ -9,24 +9,22 @@ import {
 } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'mps_tenant' })
-class TenantEntity {
+export class TenantEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  public id: string;
 
   @Column({ unique: true, nullable: false })
-  tenant_name: string;
+  public tenant_name: string;
 
   @Column({ default: true, nullable: false })
-  status: boolean;
+  public status: boolean;
 
   @ManyToOne(() => UserEntity, user => user.id)
-  user: UserEntity;
+  public user: UserEntity;
 
   @CreateDateColumn()
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  public updatedAt: Date;
 }
-
-export { TenantEntity };

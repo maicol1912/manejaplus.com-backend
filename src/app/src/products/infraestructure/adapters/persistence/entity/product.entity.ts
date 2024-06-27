@@ -1,27 +1,37 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn
+} from 'typeorm';
 
 @Entity({ name: 'mps_product' })
-class ProductEntity {
+export class ProductEntity {
   @PrimaryGeneratedColumn()
-  private id: number;
+  public id: number;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
-  private name: string;
+  public name: string;
 
   @Column({ type: 'text', nullable: false })
-  private description: string;
+  public description: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-  private price: number;
+  public price: number;
 
   @Column({ type: 'int', nullable: false })
-  private stock: number;
+  public stock: number;
 
   @Column({ type: 'text', nullable: true })
-  private image: string;
+  public image: string;
 
   @Column({ type: 'boolean', default: true, nullable: false })
-  private status: boolean;
-}
+  public status: boolean;
 
-export { ProductEntity };
+  @CreateDateColumn()
+  public createdAt: Date;
+
+  @UpdateDateColumn()
+  public updatedAt: Date;
+}
