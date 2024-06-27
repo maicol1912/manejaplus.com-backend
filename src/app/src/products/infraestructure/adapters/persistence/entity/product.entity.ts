@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'product' })
 class ProductEntity {
   @PrimaryGeneratedColumn()
   private id: number;
@@ -23,3 +23,5 @@ class ProductEntity {
   @Column({ type: 'boolean', default: true, nullable: false })
   private status: boolean;
 }
+
+export { ProductEntity };

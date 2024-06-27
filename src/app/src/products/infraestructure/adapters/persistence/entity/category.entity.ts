@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'category' })
 class CategoryEntity {
   @PrimaryColumn({ length: 3 })
   private code: string;
@@ -14,3 +14,5 @@ class CategoryEntity {
   @Column({ type: 'boolean', default: true, nullable: false })
   private status: boolean;
 }
+
+export { CategoryEntity };

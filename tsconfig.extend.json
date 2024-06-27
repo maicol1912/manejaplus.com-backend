@@ -38,6 +38,11 @@
           "@supports/domain/*": ["src/modules/supports/domain/*"],
           "@supports/infraestructure/*": ["src/modules/supports/infraestructure/*"],
 
+          "@typeorm/*": ["src/modules/support/*"],
+          "@typeorm/application/*": ["src/modules/typeorm/application/*"],
+          "@typeorm/domain/*": ["src/modules/typeorm/domain/*"],
+          "@typeorm/infraestructure/*": ["src/modules/typeorm/infraestructure/*"],
+
           "@lib/aws/*": ["src/libs/aws/*"],
           "@lib/elastick-stack/*": ["src/libs/elastick-stack/*"],
           "@lib/gpt/*": ["src/libs/gpt/*"],

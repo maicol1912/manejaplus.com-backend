@@ -1,5 +1,3 @@
-version: '3'
-
 services:
 
   manejaplus_service:
@@ -12,6 +10,18 @@ services:
     volumes:
       - ./src:/usr/src/app/src
     command: pnpm run start:dev
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: manejaplusdb
+      POSTGRES_USER: manejaplus
+      POSTGRES_PASSWORD: manejaplus123 
+    ports:
+      - "5432:5432"
 
   # rabbitmq:
   #   container_name: rabbitmq_container
