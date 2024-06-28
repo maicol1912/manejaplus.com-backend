@@ -38,10 +38,10 @@
           "@supports/domain/*": ["src/modules/supports/domain/*"],
           "@supports/infraestructure/*": ["src/modules/supports/infraestructure/*"],
 
-          "@typeorm/*": ["src/modules/support/*"],
-          "@typeorm/application/*": ["src/modules/typeorm/application/*"],
-          "@typeorm/domain/*": ["src/modules/typeorm/domain/*"],
-          "@typeorm/infraestructure/*": ["src/modules/typeorm/infraestructure/*"],
+          "@persistence/*": ["src/modules/support/*"],
+          "@persistence/application/*": ["src/modules/persistence/application/*"],
+          "@persistence/domain/*": ["src/modules/persistence/domain/*"],
+          "@persistence/infraestructure/*": ["src/modules/persistence/infraestructure/*"],
 
           "@lib/aws/*": ["src/libs/aws/*"],
           "@lib/elastick-stack/*": ["src/libs/elastick-stack/*"],

@@ -1,4 +1,4 @@
-import { TenantService } from '@app/typeorm/application/services/tenant.service';
+import { TenantService } from '@app/persistence/application/services/tenant.service';
 import {
   Controller,
   Post,
@@ -10,8 +10,8 @@ import {
   Inject
 } from '@nestjs/common';
 
-@Controller('typeorm')
-export class TypeOrmController {
+@Controller('persistence')
+export class PersistenceController {
   constructor(@Inject(TenantService) private tenantService: TenantService) {}
 
   @Post('schema')
@@ -20,7 +20,7 @@ export class TypeOrmController {
       await this.tenantService.createSchemaClient(schemaName);
       return { message: `Schema ${schemaName} created successfully` };
     } catch (error) {
-      throw new HttpException('Failed to create schema', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to create schema', error);
     }
   }
 

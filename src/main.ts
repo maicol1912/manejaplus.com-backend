@@ -2,9 +2,11 @@ import config from 'config';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import path from 'path';
 import fs from 'fs';
+import { GlobalExceptionFilter } from '@app/shared/filters/exception.filter';
+import { TransformationResponseInterceptor } from '@app/shared/interceptors/response.interceptor';
 
 const isProduction = () => {
   return process.env.NODE_ENV === 'production';
@@ -40,8 +42,9 @@ export const nestApplication = async <T>(moduleClass: T): Promise<INestApplicati
   const app = await nestEnviromentApplication(moduleClass);
   app.use(cookieParser());
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix(config.get('PREFIX'));
-
+  app.useGlobalInterceptors(new TransformationResponseInterceptor());
   await app.listen(config.get('PORT'), () => {
     console.log(`Server is running on port ${config.get('PORT')}`);
   });
