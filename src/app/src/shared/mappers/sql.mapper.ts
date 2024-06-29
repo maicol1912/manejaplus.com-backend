@@ -26,14 +26,9 @@ export class SqlGlobalMapper {
     return destination as U;
   }
 
-  static mapClassMethos<T, U>(
-    source: T,
-    options: MapOptions<T> = {},
-    TargetClass?: new () => U
-  ): U {
+  static mapClassMethod<T, U>(source: T, TargetClass: new () => U, options: MapOptions<T> = {}): U {
     let mappedSource: any = source;
 
-    // Create the destination object
     let destination: U;
     if (TargetClass) {
       destination = new TargetClass();
@@ -41,7 +36,6 @@ export class SqlGlobalMapper {
       destination = {} as U;
     }
 
-    // Copy properties from source to destination
     for (const key in mappedSource) {
       if ((options.omit && options.omit.includes(key as keyof T)) || key === '__v') {
         continue;
@@ -55,8 +49,6 @@ export class SqlGlobalMapper {
         (destination as any)[key] = mappedSource[key];
       }
     }
-
-    // Log methods for debugging
     const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(destination)).filter(
       prop => typeof (destination as any)[prop] === 'function'
     );
@@ -67,5 +59,13 @@ export class SqlGlobalMapper {
 
   static mapClassList<T, U>(sourceList: T[], options: MapOptions<T> = {}): U[] {
     return sourceList.map(item => this.mapClass<T, U>(item, options));
+  }
+
+  static mapClassMethodList<T, U>(
+    sourceList: T[],
+    TargetClass: new () => U,
+    options?: MapOptions<T>
+  ): U[] {
+    return sourceList.map(source => this.mapClassMethod<T, U>(source, TargetClass, options));
   }
 }

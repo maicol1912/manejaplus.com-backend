@@ -9,7 +9,6 @@ export class UserService {
   constructor(private userRepository: UserRepositoryImpl) {}
 
   public async createUser(userModel: UserModel): Promise<UserModel> {
-    console.log(userModel);
     await userModel.encriptPassword();
     return SqlGlobalMapper.mapClass<UserEntity, UserModel>(
       await this.userRepository.createUser(
@@ -17,5 +16,14 @@ export class UserService {
       ),
       { get: ['name', 'email'] }
     );
+  }
+
+  public async incrementAttempFailed(id: string) {
+    const user = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
+      await this.userRepository.getUserById(id),
+      UserModel
+    );
+    user.incrementFailedAttempts();
+    this.userRepository.updateUser(id, SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
   }
 }

@@ -3,52 +3,80 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PERSISTENCE_CONSTANTS } from '../config/constant/persistence.constants';
+import { UUIDEncoder } from '@app/shared/encoders/uuid.encoder';
+import { TenantRepositoryImpl } from '@app/persistence/infraestructure/adapters/persistence/repository/tenant.repository';
+import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
+import { TenantModel } from '@app/persistence/domain/models/tenant.model';
+import { TenantEntity } from '@app/persistence/infraestructure/adapters/persistence/entity/tenant.entity';
 
 @Injectable()
 export class TenantService {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private tenantRepository: TenantRepositoryImpl
+  ) {}
 
-  public async createSchemaClient(schemaName: string) {
-    const schemaExists = await this.checkSchemaToCreateExists(schemaName);
-    if (schemaExists) {
-      throw new Error(`The schema "${schemaName}" already exists`);
+  public async createTenantClient(tenantModel: TenantModel): Promise<string | null> {
+    try {
+      const UUID = UUIDEncoder();
+      tenantModel.name = `${tenantModel.name}_${UUID}`;
+      const tenantCreated = await this.tenantRepository.createTenant(
+        SqlGlobalMapper.mapClass<TenantModel, TenantEntity>(tenantModel)
+      );
+
+      if (tenantCreated) {
+        const schemaExists = await this.checkSchemaToCreateExists(tenantModel.name);
+        if (schemaExists) {
+          throw new Error(`The schema "${tenantModel.name}" already exists`);
+        }
+
+        const entitiesToLoadInClientSchema = this.loadEntitiesInSchemaClient();
+        await this.dataSource.query(`CREATE SCHEMA IF NOT EXISTS "${tenantModel.name}"`);
+
+        await this.dataSource.query(`SET search_path TO "${tenantModel.name}"`);
+
+        const clientDataSource = new DataSource({
+          ...this.dataSource.options,
+          schema: tenantModel.name,
+          entities: entitiesToLoadInClientSchema
+        } as DataSourceOptions);
+
+        await clientDataSource.initialize();
+        await clientDataSource.synchronize(true);
+
+        await clientDataSource.destroy();
+
+        await this.dataSource.query(`SET search_path TO "public"`);
+        return tenantCreated.id;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
     }
-
-    const entitiesToLoadInClientSchema = this.loadEntitiesInSchemaClient();
-    await this.dataSource.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`);
-
-    await this.dataSource.query(`SET search_path TO "${schemaName}"`);
-
-    const clientDataSource = new DataSource({
-      ...this.dataSource.options,
-      schema: schemaName,
-      entities: entitiesToLoadInClientSchema
-    } as DataSourceOptions);
-
-    await clientDataSource.initialize();
-    await clientDataSource.synchronize(true);
-
-    await clientDataSource.destroy();
-
-    await this.dataSource.query(`SET search_path TO "public"`);
   }
 
-  public async deleteSchemaClient(schemaName: string) {
-    if (schemaName.toLowerCase() === 'public') {
-      throw new Error('No se puede eliminar el esquema public');
+  public async deleteSchemaClient(schemaName: string): Promise<string | null> {
+    try {
+      if (schemaName.toLowerCase() === 'public') {
+        throw new Error('No se puede eliminar el esquema public');
+      }
+
+      await this.dataSource.query(`
+        DO $$ DECLARE
+          r RECORD;
+        BEGIN
+          FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = '${schemaName}') LOOP
+            EXECUTE 'DROP TABLE IF EXISTS "${schemaName}"."' || r.tablename || '" CASCADE';
+          END LOOP;
+        END $$;
+      `);
+
+      await this.dataSource.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
+      return schemaName;
+    } catch (error) {
+      return null;
     }
-
-    await this.dataSource.query(`
-      DO $$ DECLARE
-        r RECORD;
-      BEGIN
-        FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = '${schemaName}') LOOP
-          EXECUTE 'DROP TABLE IF EXISTS "${schemaName}"."' || r.tablename || '" CASCADE';
-        END LOOP;
-      END $$;
-    `);
-
-    await this.dataSource.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
   }
 
   public loadEntitiesInSchemaClient(): Function[] {

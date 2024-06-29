@@ -13,17 +13,6 @@ import {
 @Controller('persistence')
 export class PersistenceController {
   constructor(@Inject(TenantService) private tenantService: TenantService) {}
-
-  @Post('schema')
-  async createSchema(@Body('schemaName') schemaName: string) {
-    try {
-      await this.tenantService.createSchemaClient(schemaName);
-      return { message: `Schema ${schemaName} created successfully` };
-    } catch (error) {
-      throw new HttpException('Failed to create schema', error);
-    }
-  }
-
   @Delete('schema/:schemaName')
   async deleteSchema(@Param('schemaName') schemaName: string) {
     try {

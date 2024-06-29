@@ -1,15 +1,18 @@
+import { OrganizationEntity } from '@app/organizations/infraestructure/persistence/entity/organization.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'mps_user' })
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
-  public id: number;
+  public id: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
   public name: string;
@@ -37,6 +40,10 @@ export class UserEntity {
 
   @Column({ default: true, nullable: false })
   public status: boolean;
+
+  @ManyToOne(() => OrganizationEntity, organization => organization.users, { nullable: true })
+  @JoinColumn({ name: 'organization' })
+  organization: OrganizationEntity | null;
 
   @CreateDateColumn()
   public createdAt: Date;

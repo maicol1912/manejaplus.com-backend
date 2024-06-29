@@ -14,4 +14,11 @@ export class UserRepositoryImpl {
   public async createUser(userEntity: UserEntity): Promise<UserEntity> {
     return await this.userRepo.save(userEntity);
   }
+
+  public async getUserById(id: string): Promise<UserEntity> {
+    return await this.userRepo.findOneBy({ id });
+  }
+  async updateUser(id: string, userEntity: UserEntity): Promise<UserEntity> {
+    return this.userRepo.save({ ...userEntity, id });
+  }
 }
