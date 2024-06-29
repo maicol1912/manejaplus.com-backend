@@ -10,19 +10,16 @@ import { RoleEntity } from './role.entity';
 
 @Entity({ schema: 'public', name: 'mps_permission' })
 export class PermissionEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { name: 'permission_id' })
   public id: number;
 
-  @Column({ unique: true, nullable: false, type: 'varchar', length: 50 })
+  @Column({ unique: true, nullable: false, type: 'varchar', length: 50, name: 'permission_name' })
   public name: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 200, name: 'permission_description' })
   public description: string;
 
-  @ManyToMany(() => RoleEntity, role => role.id)
-  public roles: RoleEntity[];
-
-  @Column({ default: true, nullable: false })
+  @Column({ default: true, nullable: false, name: 'permission_status' })
   public status: boolean;
 
   @CreateDateColumn()

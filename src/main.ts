@@ -42,7 +42,7 @@ export const nestApplication = async <T>(moduleClass: T): Promise<INestApplicati
   const app = await nestEnviromentApplication(moduleClass);
   app.use(cookieParser());
   app.enableCors();
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.setGlobalPrefix(config.get('PREFIX'));
   app.useGlobalInterceptors(new TransformationResponseInterceptor());
   await app.listen(config.get('PORT'), () => {

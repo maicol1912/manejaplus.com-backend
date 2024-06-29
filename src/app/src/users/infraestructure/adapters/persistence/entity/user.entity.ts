@@ -1,3 +1,4 @@
+import { RoleEntity } from '@app/authentication/infraestructure/adapters/persistence/entity/role.entity';
 import { OrganizationEntity } from '@app/organizations/infraestructure/persistence/entity/organization.entity';
 import {
   Entity,
@@ -6,7 +7,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  ManyToMany,
+  JoinTable
 } from 'typeorm';
 
 @Entity({ schema: 'public', name: 'mps_user' })
@@ -44,6 +47,20 @@ export class UserEntity {
   @ManyToOne(() => OrganizationEntity, organization => organization.users, { nullable: true })
   @JoinColumn({ name: 'organization' })
   organization: OrganizationEntity | null;
+
+  @ManyToMany(() => RoleEntity)
+  @JoinTable({
+    name: 'mps_user_role',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id'
+    }
+  })
+  roles: RoleEntity[];
 
   @CreateDateColumn()
   public createdAt: Date;

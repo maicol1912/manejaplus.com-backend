@@ -9,6 +9,7 @@ import { PersistenceModule } from '@app/persistence/persistence.module';
 @Module({
   imports: [],
   controllers: [UserController],
-  providers: [UserRepositoryImpl, UserService]
+  providers: [UserRepositoryImpl, UserService],
+  exports: [UserRepositoryImpl]
 })
 export class UsersModule {}

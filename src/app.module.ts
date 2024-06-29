@@ -19,7 +19,8 @@ import { OrganizationModule } from '@app/organizations/organization.module';
     ProductsModule,
     UsersModule,
     AuthenticationModule,
-    OrganizationModule
+    OrganizationModule,
+    AuthenticationModule
   ],
   controllers: [HealthController],
   providers: [
