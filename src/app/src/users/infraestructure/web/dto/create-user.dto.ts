@@ -1,14 +1,17 @@
+import { Transform } from 'class-transformer';
 import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, Matches } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
+  @Transform(({ value }) => value.toUpperCase())
   name: string;
 
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(100)
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 
   @IsNotEmpty()

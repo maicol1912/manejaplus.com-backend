@@ -8,7 +8,7 @@ import { UserModel } from '@app/users/domain/models/user.model';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('create')
   public async createUser(@Body() createUserDto: CreateUserDto) {
     const create = await this.userService.createUser(
       SqlGlobalMapper.mapClassMethod<CreateUserDto, UserModel>(createUserDto, UserModel)

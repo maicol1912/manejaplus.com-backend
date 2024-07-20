@@ -16,7 +16,6 @@ export class OrganizationService {
     organizationModel: OrganizationModel
   ): Promise<OrganizationModel> {
     organizationModel.tenant = await this.tenantService.createTenantClient(organizationModel);
-    console.log('organizationModel.tenant', organizationModel.tenant);
     return SqlGlobalMapper.mapClass<OrganizationEntity, OrganizationModel>(
       await this.organizationRepository.createOrganization(
         SqlGlobalMapper.mapClass<OrganizationModel, OrganizationEntity>(organizationModel)

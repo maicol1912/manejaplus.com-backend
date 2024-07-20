@@ -12,4 +12,15 @@ async function PasswordEncoder(password: string): Promise<string> {
   }
 }
 
-export { PasswordEncoder };
+async function CheckPasswordAreEquals(
+  passwordTry: string,
+  originalPassword: string
+): Promise<boolean> {
+  try {
+    const areEqual = await bcrypt.compare(passwordTry, originalPassword);
+    return areEqual;
+  } catch (error) {
+    return false;
+  }
+}
+export { PasswordEncoder, CheckPasswordAreEquals };

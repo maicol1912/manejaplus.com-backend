@@ -11,10 +11,12 @@ services:
       - ./src:/usr/src/app/src
     command: pnpm run start:dev
     depends_on:
-      - postgres
+      - postgres_service
+      - kibana
 
-  postgres:
+  postgres_service:
     image: postgres:latest
+    container_name: postgres_service
     restart: always
     environment:
       POSTGRES_DB: manejaplusdb
@@ -22,6 +24,45 @@ services:
       POSTGRES_PASSWORD: manejaplus123 
     ports:
       - "5432:5432"
+      
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    restart: always
+    environment:
+      ES_JAVA_OPTS: -Xmx1g -Xms1g
+      bootstrap.memory_lock: "true"
+      discovery.type: single-node
+      network.host: 0.0.0.0
+      transport.host: 127.0.0.1
+      http.host: 0.0.0.0
+      xpack.security.enabled: "false"
+      xpack.security.authc.api_key.enabled: "true"
+      xpack.monitoring.collection.enabled: "true"
+      xpack.security.enrollment.enabled: "true"
+      xpack.security.authc.token.enabled: "true"
+      ELASTIC_PASSWORD: admin1234
+    ports:
+      - 9300:9300
+      - 9200:9200
+    volumes:
+      - ./docker-volumes/elasticsearch-data:/usr/share/elasticsearch/data
+
+  kibana:
+    container_name: kibana_container
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://elasticsearch:9200"]
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=admin1234
+      - XPACK_FLEET_AGENTS_ELASTICSEARCH_HOSTS=["http://elasticsearch:9200"]
+    ports:
+      - 5601:5601
+    volumes:
+      - ./_volumes/kibana.yml/:/usr/share/kibana/config/kibana.yml:ro
+    depends_on: 
+      - elasticsearch
 
   # rabbitmq:
   #   container_name: rabbitmq_container
@@ -55,49 +96,9 @@ services:
   #   environment:
   #   - REDIS_HOSTS=local:redis_container:6379
   
-  # elasticsearch:
-  #   container_name: elasticsearch_container
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-  #   restart: always
-  #   environment:
-  #     ES_JAVA_OPTS: -Xmx1g -Xms1g
-  #     bootstrap.memory_lock: "true"
-  #     discovery.type: single-node
-  #     network.host: 0.0.0.0
-  #     transport.host: 127.0.0.1
-  #     http.host: 0.0.0.0
-  #     xpack.security.enabled: "true"
-  #     xpack.security.authc.api_key.enabled: "true"
-  #     xpack.monitoring.collection.enabled: "true"
-  #     xpack.security.enrollment.enabled: "true"
-  #     xpack.security.authc.token.enabled: "true"
-  #     ELASTIC_PASSWORD: admin1234
-  #   ports:
-  #     - 9300:9300
-  #     - 9200:9200
-  #   volumes:
-  #     - ./docker-volumes/elasticsearch-data:/usr/share/elasticsearch/data
-  #   networks:
-  #     - elastic
+
   
-  # kibana:
-  #   container_name: kibana_container
-  #   image: docker.elastic.co/kibana/kibana:8.11.0
-  #   restart: always
-  #   environment:
-  #     - ELASTICSEARCH_HOSTS=["http://elasticsearch_container:9200"]
-  #     - ELASTICSEARCH_USERNAME=kibana_system
-  #     - ELASTICSEARCH_PASSWORD=kibana
-  #     - ELASTICSEARCH_SERVICEACCOUNT_TOKEN=AAEAAWVsYXN0aWMva2liYW5hL2pvYmJlci1raWJhbmE6N3BWZ0ItZWxSY21wMEJ0Y3ZKNTlHZw
-  #     - XPACK_FLEET_AGENTS_ELASTICSEARCH_HOSTS=["http://elasticsearch_container:9200"]
-  #   ports:
-  #     - 5601:5601
-  #   networks:
-  #     - elastic
-  #   volumes:
-  #     - ./_volumes/kibana.yml/:/usr/share/kibana/config/kibana.yml:ro
-  #   depends_on: 
-  #     - elasticsearch
+  
 
   # apmServer:
   #   image: docker.elastic.co/apm/apm-server:8.11.0

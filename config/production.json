@@ -1,4 +1,17 @@
 {
   "PORT": 3001,
-  "PREFIX": "manejaplusback"
+  "PREFIX": "manejaplusback",
+  "ELASTIC_SEARCH_URL": "http://elastic:admin1234@localhost:9200",
+  "DATABASE": {
+    "HOST": "postgres_service",
+    "USERNAME": "manejaplus",
+    "PASSWORD": "manejaplus123",
+    "DATABASE_NAME": "manejaplusdb",
+    "PORT": 5432
+  },
+  "AUTH": {
+    "SECRET_KEY": "drCJvy8?_bQ=r*DJ4/zj?BDA#quvEpW-1!?vThBRkz_zBtJ3fw0T=:7Y_cf*14VnG(Sni2M8+d)T#*puMD6+uz+bg)rP3ytqsmo",
+    "TIME_REFRESH_TOKEN": "7d",
+    "TIME_ACCESS_TOKEN": "15m"
+  }
 }

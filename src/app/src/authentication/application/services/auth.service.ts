@@ -1,20 +1,26 @@
+import config from 'config';
 import { AssignRoleModel } from '@app/authentication/domain/models/assign-role.model';
+import { LoginModel } from '@app/authentication/domain/models/login.dto';
 import { PermissionModel } from '@app/authentication/domain/models/permission.model';
 import { RoleModel } from '@app/authentication/domain/models/role.model';
 import { AuthRepositoryImpl } from '@app/authentication/domain/repositories/auth.repository';
 import { PermissionEntity } from '@app/authentication/infraestructure/adapters/persistence/entity/permission.entity';
 import { RoleEntity } from '@app/authentication/infraestructure/adapters/persistence/entity/role.entity';
+import { CheckPasswordAreEquals } from '@app/shared/encoders/password.encoder';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
+import { AtLeastOneProperty } from '@app/shared/types/at-least-one-property';
 import { UserModel } from '@app/users/domain/models/user.model';
 import { UserEntity } from '@app/users/infraestructure/adapters/persistence/entity/user.entity';
 import { UserRepositoryImpl } from '@app/users/infraestructure/adapters/persistence/repository/user-impl.repository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private authRepository: AuthRepositoryImpl,
-    private userRepository: UserRepositoryImpl
+    private userRepository: UserRepositoryImpl,
+    private jwtService: JwtService
   ) {}
 
   public async createPermission(permissionModel: PermissionModel) {
@@ -59,5 +65,43 @@ export class AuthService {
     return SqlGlobalMapper.mapClass<UserEntity, UserModel>(
       await this.userRepository.updateUser(userId, user)
     );
+  }
+
+  public async loginUser(loginModel: LoginModel): Promise<Record<string, any>> {
+    let { email, password } = loginModel;
+    const userFoundByEmail = await this.userRepository.getUserByField({ email });
+
+    if (!userFoundByEmail) {
+      throw new UnauthorizedException('The credentials is not valid');
+    }
+    if (!CheckPasswordAreEquals(password, userFoundByEmail.password)) {
+      throw new UnauthorizedException('The credentials is not valid');
+    }
+    ({ email } = userFoundByEmail);
+    let { id } = userFoundByEmail;
+    const { accessToken, refreshToken } = await this.generateJWTTokens({ email, id });
+    userFoundByEmail.accessToken = accessToken;
+    userFoundByEmail.refreshToken = refreshToken;
+    await this.userRepository.save(userFoundByEmail);
+    return {
+      accessToken,
+      refreshToken
+    };
+  }
+
+  public async generateJWTTokens(payload: AtLeastOneProperty<UserModel>): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const accessToken = await this.jwtService.signAsync(
+      { sub: { ...payload } },
+      { expiresIn: config.get<string>('AUTH.TIME_ACCESS_TOKEN') }
+    );
+    const refreshToken = await this.jwtService.signAsync(
+      { sub: { ...payload } },
+      { expiresIn: config.get<string>('AUTH.TIME_ACCESS_TOKEN') }
+    );
+
+    return { accessToken, refreshToken };
   }
 }

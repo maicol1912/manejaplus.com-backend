@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { isArray, IsArray } from 'class-validator';
 
 type ResponseException = string | { message?: string; details?: string; [key: string]: any };
 
@@ -13,9 +14,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const httpStatus =
       exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    console.error('exception ==> ', exception);
-
-    const exceptionResponse: ResponseException =
+    console.error('\x1b[41m\x1b[37m\x1b[1m NEW EXCEPTION ==> \x1b[0m', exception);
+    console.error('\x1b[41m\x1b[37m\x1b[1m **END EXCEPTION**\x1b[0m');
+    let exceptionResponse: ResponseException =
       exception instanceof HttpException
         ? exception.getResponse()
         : Array.isArray(exception)
@@ -23,18 +24,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           : exception === undefined || exception === null
             ? { message: 'Error desconocido' }
             : String(exception);
-
-    console.log('exceptionResponse', exceptionResponse);
-
-    const isArrayError =
-      typeof exceptionResponse === 'object' &&
-      'message' in exceptionResponse &&
-      Array.isArray(exceptionResponse.message);
+    const exceptionResponsee = exceptionResponse as any;
 
     const responseBody = {
       success: false,
       statusCode: httpStatus,
-      error: isArrayError ? exceptionResponse.message : exceptionResponse
+      error: exceptionResponsee?.message
     };
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }

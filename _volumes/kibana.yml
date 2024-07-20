@@ -6,12 +6,15 @@ server.host: '0.0.0.0'
 server.port: 5601
 
 # Elasticsearch Connection
-elasticsearch.hosts: ['http://elasticsearch_container:9200']
+elasticsearch.hosts: ['http://elasticsearch:9200']
 
 monitoring.ui.container.elasticsearch.enabled: true
 xpack.fleet.enabled: true
 xpack.fleet.agents.enabled: true
-xpack.fleet.agents.elasticsearch.hosts: ['http://elasticsearch_container:9200']
+xpack.fleet.agents.elasticsearch.hosts: ['http://elasticsearch:9200']
+elasticsearch.username: 'kibana_system'
+elasticsearch.password: 'admin1234'
+
 xpack.reporting.roles.enabled: true
 xpack.fleet.agentIdVerificationEnabled: false
 xpack.security.encryptionKey: fhjskloppd678ehkdfdlliverpoolfcr

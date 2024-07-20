@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
 import { UserService } from '@app/users/application/services/user.service';
 import { UserModel } from '@app/users/domain/models/user.model';
@@ -9,6 +9,9 @@ import { PermissionModel } from '@app/authentication/domain/models/permission.mo
 import { RoleModel } from '@app/authentication/domain/models/role.model';
 import { AssignRoleDto } from '../dto/assign-role.dto';
 import { AssignRoleModel } from '@app/authentication/domain/models/assign-role.model';
+import { LoginDto } from '../dto/login.dto';
+import { LoginModel } from '@app/authentication/domain/models/login.dto';
+import { Authenticated } from '../../adapters/auth/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,5 +36,16 @@ export class AuthController {
     return this.authService.assignRole(
       SqlGlobalMapper.mapClass<AssignRoleDto, AssignRoleModel>(assignRoleDto)
     );
+  }
+
+  @Post('login')
+  public async loginUser(@Body() loginDto: LoginDto) {
+    return this.authService.loginUser(SqlGlobalMapper.mapClass<LoginDto, LoginModel>(loginDto));
+  }
+
+  @Get('gretting')
+  @Authenticated()
+  public async gretting() {
+    return 'hello';
   }
 }

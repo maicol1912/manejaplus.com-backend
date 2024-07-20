@@ -41,12 +41,18 @@ export class UserEntity {
   @Column({ type: 'boolean', default: true, nullable: true })
   public isBlocked: boolean;
 
-  @Column({ default: true, nullable: false })
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  public accessToken: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  public refreshToken: string;
+
+  @Column({ type: 'boolean', default: true, nullable: false })
   public status: boolean;
 
   @ManyToOne(() => OrganizationEntity, organization => organization.users, { nullable: true })
   @JoinColumn({ name: 'organization' })
-  organization: OrganizationEntity | null;
+  public organization: OrganizationEntity | null;
 
   @ManyToMany(() => RoleEntity)
   @JoinTable({
@@ -60,7 +66,7 @@ export class UserEntity {
       referencedColumnName: 'id'
     }
   })
-  roles: RoleEntity[];
+  public roles: RoleEntity[];
 
   @CreateDateColumn()
   public createdAt: Date;

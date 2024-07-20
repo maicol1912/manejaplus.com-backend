@@ -11,9 +11,7 @@ export class UserService {
   public async createUser(userModel: UserModel): Promise<UserModel> {
     await userModel.encriptPassword();
     return SqlGlobalMapper.mapClass<UserEntity, UserModel>(
-      await this.userRepository.createUser(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel)
-      ),
+      await this.userRepository.save(SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel)),
       { get: ['name', 'email'] }
     );
   }
