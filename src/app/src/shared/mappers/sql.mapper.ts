@@ -52,7 +52,6 @@ export class SqlGlobalMapper {
     const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(destination)).filter(
       prop => typeof (destination as any)[prop] === 'function'
     );
-    console.log('[methods mapper]', methods);
 
     return destination;
   }

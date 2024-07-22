@@ -10,6 +10,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { UsersModule } from '@app/users/users.module';
 import { OrganizationModule } from '@app/organizations/organization.module';
 import { ElasticSearchModule } from '@libs/elasticsearch/elasticsearch.module';
+import { MailerModule } from '@libs/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ElasticSearchModule } from '@libs/elasticsearch/elasticsearch.module';
     }),
     ElasticSearchModule.forRoot(),
     PersistenceModule,
+    MailerModule,
     ProductsModule,
     UsersModule,
     AuthenticationModule,
@@ -30,6 +32,7 @@ import { ElasticSearchModule } from '@libs/elasticsearch/elasticsearch.module';
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter
     }
-  ]
+  ],
+  exports: [MailerModule]
 })
 export class AppModule {}

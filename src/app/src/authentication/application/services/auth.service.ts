@@ -12,8 +12,18 @@ import { AtLeastOneProperty } from '@app/shared/types/at-least-one-property';
 import { UserModel } from '@app/users/domain/models/user.model';
 import { UserEntity } from '@app/users/infraestructure/adapters/persistence/entity/user.entity';
 import { UserRepositoryImpl } from '@app/users/infraestructure/adapters/persistence/repository/user-impl.repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { AccountNotVerifiedException } from '@app/authentication/domain/exceptions/account-not-verified.exception';
+import { VerifingAccountException } from '@app/authentication/domain/exceptions/verifing-account.exception';
+import { ERRORS_DEFINED } from '../config/auth.constants';
+import { AccountBlockedException } from '@app/authentication/domain/exceptions/account-blocked.exception';
+import { OtpRequiredException } from '@app/authentication/domain/exceptions/otp-required.exception';
 
 @Injectable()
 export class AuthService {
@@ -69,20 +79,48 @@ export class AuthService {
 
   public async loginUser(loginModel: LoginModel): Promise<Record<string, any>> {
     let { email, password } = loginModel;
-    const userFoundByEmail = await this.userRepository.getUserByField({ email });
+
+    const userFoundByEmail = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
+      await this.userRepository.getUserByField({ email }),
+      UserModel
+    );
 
     if (!userFoundByEmail) {
       throw new UnauthorizedException('The credentials is not valid');
     }
-    if (!CheckPasswordAreEquals(password, userFoundByEmail.password)) {
+
+    if (!(await CheckPasswordAreEquals(password, userFoundByEmail.password))) {
+      userFoundByEmail.incrementFailedAttempts();
+
+      await this.userRepository.save(
+        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
+      );
       throw new UnauthorizedException('The credentials is not valid');
     }
+
+    if (!userFoundByEmail.isVerified) {
+      throw new AccountNotVerifiedException();
+    }
+
+    if (userFoundByEmail.isBlocked) {
+      throw new AccountBlockedException();
+    }
+
+    if (userFoundByEmail.validateNeedOtpToLogin()) {
+      throw new OtpRequiredException();
+    }
+
     ({ email } = userFoundByEmail);
     let { id } = userFoundByEmail;
+
     const { accessToken, refreshToken } = await this.generateJWTTokens({ email, id });
     userFoundByEmail.accessToken = accessToken;
     userFoundByEmail.refreshToken = refreshToken;
-    await this.userRepository.save(userFoundByEmail);
+
+    await this.userRepository.save(
+      SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
+    );
+
     return {
       accessToken,
       refreshToken
@@ -103,5 +141,54 @@ export class AuthService {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  public async verifyAccount(token: string): Promise<Record<string, string>> {
+    try {
+      const decodedToken = await this.jwtService.decode(token);
+      const { email, id } = decodedToken;
+
+      const userFoundByToken = await this.userRepository.getUserByField({ email, id });
+
+      if (!userFoundByToken) {
+        throw new VerifingAccountException();
+      }
+
+      userFoundByToken.isVerified = true;
+
+      const userUpdated = await this.userRepository.save(userFoundByToken);
+      return {
+        email: userUpdated.email,
+        name: userUpdated.name
+      };
+    } catch (error) {
+      throw new VerifingAccountException();
+    }
+  }
+
+  public async generateJwtToken(data: Record<string, any>): Promise<string> {
+    const token = await this.jwtService.signAsync(
+      { sub: { ...data } },
+      { expiresIn: config.get<string>('AUTH.TIME_VERIFY_ACCOUNT') }
+    );
+    return token;
+  }
+
+  public async refreshToken(loginModel: LoginModel) {
+    let { email } = loginModel;
+    const userFound = await this.userRepository.getUserByField({ email });
+
+    if (!userFound || !userFound.refreshToken) {
+      throw new UnauthorizedException();
+    }
+    try {
+      ({ email } = userFound);
+      let { id } = userFound;
+      const { accessToken } = await this.generateJWTTokens({ email, id });
+      userFound.accessToken = accessToken;
+      await this.userRepository.save(userFound);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
   }
 }

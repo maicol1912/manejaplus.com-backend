@@ -12,6 +12,16 @@
   "AUTH": {
     "SECRET_KEY": "drCJvy8?_bQ=r*DJ4/zj?BDA#quvEpW-1!?vThBRkz_zBtJ3fw0T=:7Y_cf*14VnG(Sni2M8+d)T#*puMD6+uz+bg)rP3ytqsmo",
     "TIME_REFRESH_TOKEN": "7d",
-    "TIME_ACCESS_TOKEN": "15m"
+    "TIME_ACCESS_TOKEN": "40m",
+    "TIME_VERIFY_ACCOUNT": "30m",
+    "MAX_ATTEMPS_FAILED": 3,
+    "TWILIO_ACCOUNT_SID": "AC844aad7714a0413e106f7a69007dc756",
+    "TWILIO_AUTH_TOKEN": "0b28c7bdf1393dfb2c99ef871190f550"
+  },
+  "MAILER": {
+    "HOST": "smtp.gmail.com",
+    "PORT": 587,
+    "USER": "maicolarcila502@gmail.com",
+    "PASSWORD": "ztlv gmar wjkw mpgw"
   }
 }

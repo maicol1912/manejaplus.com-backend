@@ -50,9 +50,15 @@ export class UserEntity {
   @Column({ type: 'boolean', default: true, nullable: false })
   public status: boolean;
 
+  @Column({ type: 'boolean', default: false, nullable: false })
+  public maintainSession: boolean;
+
   @ManyToOne(() => OrganizationEntity, organization => organization.users, { nullable: true })
   @JoinColumn({ name: 'organization' })
   public organization: OrganizationEntity | null;
+
+  @Column({ type: 'timestamp', default: null, nullable: true })
+  public lastConnection: Date;
 
   @ManyToMany(() => RoleEntity)
   @JoinTable({
