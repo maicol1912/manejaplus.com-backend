@@ -26,11 +26,14 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
   public password: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: false })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   public phone: string;
 
   @Column({ type: 'varchar', length: 10, nullable: true })
   public otp: string;
+
+  @Column({ type: 'varchar', default: 'web', nullable: true })
+  public origin: string;
 
   @Column({ type: 'int', default: 0, nullable: true })
   public attemptsFailed: number;

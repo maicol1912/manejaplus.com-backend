@@ -31,7 +31,7 @@ export class UserService {
       await userModel.encriptPassword();
 
       const userSaved = await this.userRepository.save(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel, { get: ['email', 'id'] })
+        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel)
       );
       const { callbackUrl } = await this.generateLinkJwtToVerifyEmail(userSaved);
 

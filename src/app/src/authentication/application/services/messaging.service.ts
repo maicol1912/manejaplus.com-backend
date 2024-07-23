@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TwilioService } from 'nestjs-twilio';
 
 @Injectable()
-export class NotificationService {
+export class MessagingService {
   public constructor(private readonly twilioService: TwilioService) {}
 
   async sendSMS(): Promise<any> {

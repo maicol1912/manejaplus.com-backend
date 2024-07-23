@@ -8,7 +8,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './infraestructure/adapters/auth/strategies/jwt.strategy';
 import { TwilioModule } from 'nestjs-twilio';
-import { NotificationService } from './application/services/notification.service';
+import { MessagingService } from './application/services/messaging.service';
+import { GoogleStrategy } from './infraestructure/adapters/auth/strategies/google.strategy';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { NotificationService } from './application/services/notification.service
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepositoryImpl, JwtStrategy, NotificationService],
+  providers: [AuthService, AuthRepositoryImpl, JwtStrategy, MessagingService, GoogleStrategy],
   exports: [AuthService, AuthRepositoryImpl]
 })
 export class AuthenticationModule {}

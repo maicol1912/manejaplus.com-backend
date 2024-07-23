@@ -1,3 +1,4 @@
+import './tools/copyAssets';
 import config from 'config';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';

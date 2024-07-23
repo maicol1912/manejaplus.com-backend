@@ -6,7 +6,7 @@ import { RoleModel } from '@app/authentication/domain/models/role.model';
 import { AuthRepositoryImpl } from '@app/authentication/domain/repositories/auth.repository';
 import { PermissionEntity } from '@app/authentication/infraestructure/adapters/persistence/entity/permission.entity';
 import { RoleEntity } from '@app/authentication/infraestructure/adapters/persistence/entity/role.entity';
-import { CheckPasswordAreEquals } from '@app/shared/encoders/password.encoder';
+import { BcrypEncoder } from '@app/shared/encoders/password.encoder';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
 import { AtLeastOneProperty } from '@app/shared/types/at-least-one-property';
 import { UserModel } from '@app/users/domain/models/user.model';
@@ -24,6 +24,8 @@ import { VerifingAccountException } from '@app/authentication/domain/exceptions/
 import { ERRORS_DEFINED } from '../config/auth.constants';
 import { AccountBlockedException } from '@app/authentication/domain/exceptions/account-blocked.exception';
 import { OtpRequiredException } from '@app/authentication/domain/exceptions/otp-required.exception';
+import { GenericBuilder } from '@app/shared/classes/generic-mapper';
+import { CryptoLibrary } from '@app/shared/encoders/crypto.encoder';
 
 @Injectable()
 export class AuthService {
@@ -89,7 +91,7 @@ export class AuthService {
       throw new UnauthorizedException('The credentials is not valid');
     }
 
-    if (!(await CheckPasswordAreEquals(password, userFoundByEmail.password))) {
+    if (!(await BcrypEncoder.checkPasswordAreEquals(password, userFoundByEmail.password))) {
       userFoundByEmail.incrementFailedAttempts();
 
       await this.userRepository.save(
@@ -122,8 +124,55 @@ export class AuthService {
     );
 
     return {
-      accessToken,
-      refreshToken
+      accessToken: CryptoLibrary.encryptString(accessToken),
+      refreshToken: CryptoLibrary.encryptString(refreshToken)
+    };
+  }
+
+  public async googleLoginUser(req: any) {
+    if (!req.user) {
+      return 'no user from google';
+    }
+    const { email, name, picture, id, provider } = req.user;
+
+    const userFoundByEmail = await this.userRepository.getUserByField({ email });
+
+    if (!userFoundByEmail) {
+      const passwordEncoded = await BcrypEncoder.passwordEncoder(id);
+      const userToSaveInDB = GenericBuilder<UserModel>()
+        .set('name', name.toUpperCase())
+        .set('email', email.toLowerCase())
+        .set('password', passwordEncoded)
+        .set('maintainSession', true)
+        .set('origin', provider)
+        .build();
+      await this.userRepository.save(
+        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userToSaveInDB)
+      );
+    }
+    let accessToken: string,
+      refreshToken: string = null;
+
+    if (userFoundByEmail) {
+      const { email, id } = userFoundByEmail;
+      ({ accessToken, refreshToken } = await this.generateJWTTokens({ email, id }));
+      userFoundByEmail.accessToken = accessToken;
+      userFoundByEmail.refreshToken = refreshToken;
+      await this.userRepository.save(userFoundByEmail);
+    } else {
+      const userFoundByEmail = await this.userRepository.getUserByField({ email });
+      ({ accessToken, refreshToken } = await this.generateJWTTokens({
+        email: userFoundByEmail.email,
+        id: userFoundByEmail.id
+      }));
+
+      userFoundByEmail.accessToken = accessToken;
+      userFoundByEmail.refreshToken = refreshToken;
+      await this.userRepository.save(userFoundByEmail);
+    }
+    return {
+      accessToken: CryptoLibrary.encryptString(accessToken),
+      refreshToken: CryptoLibrary.encryptString(refreshToken)
     };
   }
 

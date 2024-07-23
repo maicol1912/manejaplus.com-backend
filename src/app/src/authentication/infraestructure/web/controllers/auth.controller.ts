@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
 import { UserService } from '@app/users/application/services/user.service';
 import { UserModel } from '@app/users/domain/models/user.model';
@@ -13,14 +13,11 @@ import { LoginDto } from '../dto/login.dto';
 import { LoginModel } from '@app/authentication/domain/models/login.dto';
 import { Authenticated } from '../../adapters/auth/guards/auth.guard';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
-import { NotificationService } from '@app/authentication/application/services/notification.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly notificationService: NotificationService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('permission')
   public async createPermission(@Body() createPermissionDto: CreatePermissionDto) {
@@ -48,6 +45,16 @@ export class AuthController {
     return this.authService.loginUser(SqlGlobalMapper.mapClass<LoginDto, LoginModel>(loginDto));
   }
 
+  @Get('google-login')
+  @UseGuards(AuthGuard('google'))
+  googleAuth(@Req() req: any) {}
+
+  @Get('google-callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: any) {
+    return this.authService.googleLoginUser(req);
+  }
+
   @Post('refresh-token')
   public async refreshToken(@Body() loginDto: LoginDto) {
     return this.authService.refreshToken(SqlGlobalMapper.mapClass<LoginDto, LoginModel>(loginDto));
@@ -57,11 +64,6 @@ export class AuthController {
   public async verifyEmail(@Param() tokenVerify: VerifyEmailDto) {
     const { token } = tokenVerify;
     return this.authService.verifyAccount(token);
-  }
-
-  @Post('send-otp')
-  public async sendOtp() {
-    return this.notificationService.makeCall();
   }
 
   @Get('gretting')

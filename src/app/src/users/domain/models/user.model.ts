@@ -1,17 +1,18 @@
-import { PasswordEncoder } from '@app/shared/encoders/password.encoder';
+import { BcrypEncoder } from '@app/shared/encoders/password.encoder';
 import { USER_CONSTANTS } from '../../application/config/constant/user.constant';
 import { AUTH_CONSTANTS } from '@app/authentication/application/config/auth.constants';
 
 export class UserModel {
+  public id?: string;
   public name: string;
   public email: string;
   public password: string;
   public phone: string;
-  public id?: string;
   public otp?: string;
-  public attemptsFailed: number;
-  public isVerified: boolean;
-  public isBlocked: boolean;
+  public attemptsFailed: number = 0;
+  public isVerified: boolean = false;
+  public isBlocked: boolean = false;
+  public origin: string = 'web';
   public accessToken: string;
   public refreshToken: string;
   public status: boolean;
@@ -44,7 +45,7 @@ export class UserModel {
     return false;
   }
   public async encriptPassword() {
-    this.password = await PasswordEncoder(this.password);
+    this.password = await BcrypEncoder.passwordEncoder(this.password);
   }
 
   public verify() {
