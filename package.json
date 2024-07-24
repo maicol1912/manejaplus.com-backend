@@ -20,9 +20,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "tools": "ts-node src/tools/copyAssets.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:dev": "concurrently \"cross-env NODE_ENV=development nest start --watch | pino-pretty -c\" \"ts-node src/tools/copyAssets.ts\"",
+    "start:dev": "cross-env NODE_ENV=development nest start --watch | pino-pretty -c",
     "start:debug": "cross-env NODE_ENV=production nest start --debug --watch | pino-pretty -c",
     "start:prod": "cross-env NODE_ENV=development node dist/main.js | pino-pretty -c",
     "test": "jest",

@@ -13,10 +13,8 @@ const EXTRACTOR_JWT = {
         const parts = authHeader.split(' ');
         if (parts.length === 2 && auth_scheme_lower === parts[0].toLowerCase()) {
           const encryptedToken = parts[1];
-          console.log('[ENCRYPTED TOKEN]', encryptedToken);
           try {
             token = CryptoLibrary.decryptString(encryptedToken);
-            console.log('DECRYPTED TOKEN', token);
           } catch (error) {}
         }
       }

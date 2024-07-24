@@ -26,12 +26,14 @@ import { AccountBlockedException } from '@app/authentication/domain/exceptions/a
 import { OtpRequiredException } from '@app/authentication/domain/exceptions/otp-required.exception';
 import { GenericBuilder } from '@app/shared/classes/generic-mapper';
 import { CryptoLibrary } from '@app/shared/encoders/crypto.encoder';
+import { OtpService } from './otp.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private authRepository: AuthRepositoryImpl,
     private userRepository: UserRepositoryImpl,
+    private otpService: OtpService,
     private jwtService: JwtService
   ) {}
 
@@ -109,6 +111,11 @@ export class AuthService {
     }
 
     if (userFoundByEmail.validateNeedOtpToLogin()) {
+      const otp_code = await this.otpService.sendOtpToUser(email);
+      userFoundByEmail.otp = otp_code;
+      await this.userRepository.save(
+        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
+      );
       throw new OtpRequiredException();
     }
 

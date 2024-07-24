@@ -10,6 +10,8 @@ import { JwtStrategy } from './infraestructure/adapters/auth/strategies/jwt.stra
 import { TwilioModule } from 'nestjs-twilio';
 import { MessagingService } from './application/services/messaging.service';
 import { GoogleStrategy } from './infraestructure/adapters/auth/strategies/google.strategy';
+import { OtpService } from './application/services/otp.service';
+import { MailerService } from '@libs/mailer/mailer.service';
 
 @Module({
   imports: [
@@ -25,7 +27,15 @@ import { GoogleStrategy } from './infraestructure/adapters/auth/strategies/googl
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepositoryImpl, JwtStrategy, MessagingService, GoogleStrategy],
+  providers: [
+    AuthService,
+    AuthRepositoryImpl,
+    JwtStrategy,
+    MessagingService,
+    GoogleStrategy,
+    OtpService,
+    MailerService
+  ],
   exports: [AuthService, AuthRepositoryImpl]
 })
 export class AuthenticationModule {}
