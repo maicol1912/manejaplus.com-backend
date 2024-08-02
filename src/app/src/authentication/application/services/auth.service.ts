@@ -82,101 +82,80 @@ export class AuthService {
   }
 
   public async loginUser(loginModel: LoginModel): Promise<Record<string, any>> {
-    let { email, password } = loginModel;
+    const { email, password } = loginModel;
 
-    const userFoundByEmail = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
+    const user = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
       await this.userRepository.getUserByField({ email }),
       UserModel
     );
 
-    if (!userFoundByEmail) {
-      throw new UnauthorizedException('The credentials is not valid');
+    if (!user) {
+      throw new UnauthorizedException('The credentials are not valid');
     }
 
-    if (!(await BcrypEncoder.checkPasswordAreEquals(password, userFoundByEmail.password))) {
-      userFoundByEmail.incrementFailedAttempts();
-
-      await this.userRepository.save(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
-      );
-      throw new UnauthorizedException('The credentials is not valid');
+    if (!(await BcrypEncoder.checkPasswordAreEquals(password, user.password))) {
+      user.incrementFailedAttempts();
+      await this.userRepository.save(SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
+      throw new UnauthorizedException('The credentials are not valid');
     }
 
-    if (!userFoundByEmail.isVerified) {
+    if (!user.isVerified) {
       throw new AccountNotVerifiedException();
     }
 
-    if (userFoundByEmail.isBlocked) {
+    if (user.isBlocked) {
       throw new AccountBlockedException();
     }
 
-    if (userFoundByEmail.validateNeedOtpToLogin()) {
+    if (user.validateNeedOtpToLogin()) {
       const otp_code = await this.otpService.sendOtpToUser(email);
-      userFoundByEmail.otp = otp_code;
-      await this.userRepository.save(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
-      );
-      throw new OtpRequiredException();
+      user.otp = otp_code;
+      await this.userRepository.save(SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
+      return { action: 'OTP_REQUIRED' };
     }
 
-    ({ email } = userFoundByEmail);
-    let { id } = userFoundByEmail;
-
-    const { accessToken, refreshToken } = await this.generateJWTTokens({ email, id });
-    userFoundByEmail.accessToken = accessToken;
-    userFoundByEmail.refreshToken = refreshToken;
-
-    await this.userRepository.save(
-      SqlGlobalMapper.mapClass<UserModel, UserEntity>(userFoundByEmail)
-    );
-
-    return {
-      accessToken: CryptoLibrary.encryptString(accessToken),
-      refreshToken: CryptoLibrary.encryptString(refreshToken)
-    };
+    return this.handleUserLogin(user);
   }
 
-  public async googleLoginUser(req: any) {
+  public async googleLoginUser(req: any): Promise<Record<string, any>> {
     if (!req.user) {
-      return 'no user from google';
+      throw new BadRequestException('No user from Google');
     }
-    const { email, name, picture, id, provider } = req.user;
 
-    const userFoundByEmail = await this.userRepository.getUserByField({ email });
+    const { email, name, id, provider } = req.user;
 
-    if (!userFoundByEmail) {
+    let user = await this.userRepository.getUserByField({ email });
+
+    if (!user) {
       const passwordEncoded = await BcrypEncoder.passwordEncoder(id);
-      const userToSaveInDB = GenericBuilder<UserModel>()
+      const newUser = GenericBuilder<UserModel>()
         .set('name', name.toUpperCase())
         .set('email', email.toLowerCase())
         .set('password', passwordEncoded)
         .set('maintainSession', true)
         .set('origin', provider)
         .build();
-      await this.userRepository.save(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userToSaveInDB)
+
+      const userEntity = await this.userRepository.save(
+        SqlGlobalMapper.mapClass<UserModel, UserEntity>(newUser)
       );
-    }
-    let accessToken: string,
-      refreshToken: string = null;
 
-    if (userFoundByEmail) {
-      const { email, id } = userFoundByEmail;
-      ({ accessToken, refreshToken } = await this.generateJWTTokens({ email, id }));
-      userFoundByEmail.accessToken = accessToken;
-      userFoundByEmail.refreshToken = refreshToken;
-      await this.userRepository.save(userFoundByEmail);
-    } else {
-      const userFoundByEmail = await this.userRepository.getUserByField({ email });
-      ({ accessToken, refreshToken } = await this.generateJWTTokens({
-        email: userFoundByEmail.email,
-        id: userFoundByEmail.id
-      }));
-
-      userFoundByEmail.accessToken = accessToken;
-      userFoundByEmail.refreshToken = refreshToken;
-      await this.userRepository.save(userFoundByEmail);
+      const newuser = SqlGlobalMapper.mapClass<UserEntity, UserModel>(userEntity);
+      return this.handleUserLogin(newuser);
     }
+
+    return this.handleUserLogin(SqlGlobalMapper.mapClass<UserEntity, UserModel>(user));
+  }
+
+  private async handleUserLogin(user: UserModel): Promise<Record<string, any>> {
+    const { email, id } = user;
+    const { accessToken, refreshToken } = await this.generateJWTTokens({ email, id });
+
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+
+    await this.userRepository.save(SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
+
     return {
       accessToken: CryptoLibrary.encryptString(accessToken),
       refreshToken: CryptoLibrary.encryptString(refreshToken)

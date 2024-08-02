@@ -1,33 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource, FindOptionsWhere } from 'typeorm';
 import { UserEntity } from '../entity/user.entity';
-import { UserModel } from '@app/users/domain/models/user.model';
 import { AtLeastOneProperty } from '@app/shared/types/at-least-one-property';
+import { BaseRepository } from '@app/persistence/infraestructure/adapters/persistence/repository/base.repository';
 
 @Injectable()
-export class UserRepositoryImpl {
-  private userRepo: Repository<UserEntity>;
-
-  constructor(@InjectDataSource() private dataSource: DataSource) {
-    this.userRepo = this.dataSource.getRepository(UserEntity);
+export class UserRepositoryImpl extends BaseRepository<UserEntity> {
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(dataSource, UserEntity);
   }
 
   public async save(userEntity: UserEntity): Promise<UserEntity> {
-    return await this.userRepo.save(userEntity);
+    return this.getManager().save(UserEntity, userEntity);
   }
 
   public async getUserById(id: string): Promise<UserEntity> {
-    return await this.userRepo.findOneBy({ id });
+    return await this.repository.findOneBy({ id });
   }
   public async updateUser(id: string, userEntity: UserEntity): Promise<UserEntity> {
-    return this.userRepo.save({ ...userEntity, id });
+    return this.repository.save({ ...userEntity, id });
   }
   public async getUserByField(query: AtLeastOneProperty<UserEntity>): Promise<UserEntity> {
     const whereClause: FindOptionsWhere<UserEntity> = {};
 
     Object.keys(query).forEach(key => {
-      if (this.userRepo.metadata.findColumnWithPropertyName(key)) {
+      if (this.repository.metadata.findColumnWithPropertyName(key)) {
         whereClause[key as keyof UserEntity] = query[key as keyof UserEntity];
       } else {
         console.warn(`La propiedad "${key}" no existe en UserEntity y será ignorada.`);
@@ -38,6 +36,6 @@ export class UserRepositoryImpl {
       throw new Error('No se proporcionaron campos válidos para la búsqueda.');
     }
 
-    return await this.userRepo.findOne({ where: whereClause });
+    return await this.repository.findOne({ where: whereClause });
   }
 }

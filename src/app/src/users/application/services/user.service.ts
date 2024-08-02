@@ -1,54 +1,48 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserModel } from '../../domain/models/user.model';
-import { UserRepositoryImpl } from '../../infraestructure/adapters/persistence/repository/user-impl.repository';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
 import { UserEntity } from '../../infraestructure/adapters/persistence/entity/user.entity';
 import { DataSource } from 'typeorm';
 import { MailerService } from '@libs/mailer/mailer.service';
 import { AuthService } from '@app/authentication/application/services/auth.service';
 import { COMMON_LOCALS, TYPE_EMAIL } from '@libs/mailer/email.type';
+import {
+  TRANSACTION_MANAGER,
+  Transactional
+} from '@app/persistence/infraestructure/adapters/persistence/decorators/transactional.decorator';
+import { UserRepositoryImpl } from '@app/users/infraestructure/adapters/persistence/repository/user-impl.repository';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepositoryImpl,
-    private datasource: DataSource,
+    @InjectDataSource() private dataSource: DataSource,
     private authService: AuthService,
     private mailerService: MailerService
   ) {}
 
+  @Transactional()
   public async createUser(userModel: UserModel): Promise<UserModel> {
-    const queryRunner = this.datasource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     const userFindByEmail = await this.userRepository.getUserByField({ email: userModel.email });
 
     if (userFindByEmail) {
       throw new BadRequestException('The email already exists');
     }
-    try {
-      await userModel.encriptPassword();
+    await userModel.encriptPassword();
 
-      const userSaved = await this.userRepository.save(
-        SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel)
-      );
-      const { callbackUrl } = await this.generateLinkJwtToVerifyEmail(userSaved);
+    const userSaved = await this.userRepository.save(
+      SqlGlobalMapper.mapClass<UserModel, UserEntity>(userModel)
+    );
+    const { callbackUrl } = await this.generateLinkJwtToVerifyEmail(userSaved);
 
-      await this.mailerService.sendEmail(userSaved.email, TYPE_EMAIL.VERIFY_ACCOUNT, {
-        ...COMMON_LOCALS,
-        ...userSaved,
-        callbackUrl
-      });
+    await this.mailerService.sendEmail(userSaved.email, TYPE_EMAIL.VERIFY_ACCOUNT, {
+      ...COMMON_LOCALS,
+      ...userSaved,
+      callbackUrl
+    });
 
-      return SqlGlobalMapper.mapClass<UserEntity, UserModel>(userSaved, { get: ['name', 'email'] });
-    } catch (error) {
-      console.error(error);
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException('was unexpectly error to create account, retry late');
-    } finally {
-      await queryRunner.release();
-    }
+    return SqlGlobalMapper.mapClass<UserEntity, UserModel>(userSaved, { get: ['name', 'email'] });
   }
 
   private async generateLinkJwtToVerifyEmail(
