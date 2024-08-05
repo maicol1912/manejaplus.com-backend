@@ -1,7 +1,8 @@
 import CryptoJS from 'crypto-js';
 import config from 'config';
+import * as bcrypt from 'bcryptjs';
 
-class CryptoLibrary {
+class EncryptionUtil {
   private static key: string = config.get<string>('KEY_ENCODER_CRYPTO');
 
   private static encryptValue(value: any): any {
@@ -70,7 +71,7 @@ class CryptoLibrary {
   }
 
   public static encryptArray(arr: any[]): string[] {
-    return arr.map(item => {
+    return arr.map((item) => {
       if (typeof item === 'object' && item !== null) {
         return this.encryptObjectAsString(item);
       } else {
@@ -80,7 +81,7 @@ class CryptoLibrary {
   }
 
   public static decryptArray(encryptedArr: string[]): any[] {
-    return encryptedArr.map(item => this.decryptValue(item));
+    return encryptedArr.map((item) => this.decryptValue(item));
   }
 
   public static encryptArrayAsString(arr: any[]): string {
@@ -94,6 +95,30 @@ class CryptoLibrary {
     }
     return decrypted;
   }
+
+  public static async hashPassword(password: string): Promise<string> {
+    try {
+      const salt = await bcrypt.genSalt(10);
+
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      return hashedPassword;
+    } catch (error) {
+      throw new Error('Error al encriptar la contraseña');
+    }
+  }
+
+  public static async comparePasswords(
+    passwordTry: string,
+    originalPassword: string
+  ): Promise<boolean> {
+    try {
+      const areEqual = await bcrypt.compare(passwordTry, originalPassword);
+      return areEqual;
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
-export { CryptoLibrary };
+export { EncryptionUtil };

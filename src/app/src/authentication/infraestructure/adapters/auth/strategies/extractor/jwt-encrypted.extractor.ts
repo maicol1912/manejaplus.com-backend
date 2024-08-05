@@ -1,4 +1,4 @@
-import { CryptoLibrary } from '@app/shared/encoders/crypto.encoder';
+import { EncryptionUtil } from '@app/shared/encryption/encryption';
 
 const AUTH_HEADER = 'authorization';
 const BEARER_AUTH_SCHEME = 'bearer';
@@ -14,7 +14,7 @@ const EXTRACTOR_JWT = {
         if (parts.length === 2 && auth_scheme_lower === parts[0].toLowerCase()) {
           const encryptedToken = parts[1];
           try {
-            token = CryptoLibrary.decryptString(encryptedToken);
+            token = EncryptionUtil.decryptString(encryptedToken);
           } catch (error) {}
         }
       }
@@ -24,7 +24,7 @@ const EXTRACTOR_JWT = {
 
   fromAuthHeaderAsBearerToken: function () {
     return this.fromAuthHeaderWithScheme(BEARER_AUTH_SCHEME);
-  }
+  },
 };
 
 export { EXTRACTOR_JWT };

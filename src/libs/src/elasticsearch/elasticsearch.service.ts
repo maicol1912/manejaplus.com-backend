@@ -6,7 +6,7 @@ import {
   ElasticsearchTransformer,
   ElasticsearchTransport,
   LogData,
-  TransformedData
+  TransformedData,
 } from 'winston-elasticsearch';
 
 @Injectable()
@@ -19,26 +19,20 @@ export class ElasticSearchService {
   constructor() {
     if (!ElasticSearchService.client) {
       ElasticSearchService.client = new Client({
-        node: this.ELASTIC_URL
+        node: this.ELASTIC_URL,
       });
       this.checkConnection();
     }
   }
 
   private async checkConnection(): Promise<void> {
-    console.log('entre en checkConnection');
-    console.log('[this.isConnected]', this.isConnected);
     while (!this.isConnected) {
-      console.log('entre en el while');
       try {
-        console.log('entre en try');
         const health = await ElasticSearchService.client.cluster.health({});
-        console.log(`ElasticSearch health status - ${health.status}`, 'log');
         this.isConnected = true;
       } catch (error) {
-        console.log('entre en catch');
         this.logger.error('Connection to Elasticsearch failed. Retrying...', error);
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
     }
   }
@@ -54,7 +48,7 @@ export class ElasticSearchService {
           level,
           handleExceptions: true,
           json: false,
-          colorize: true
+          colorize: true,
         },
         elasticsearch: {
           level,
@@ -64,15 +58,15 @@ export class ElasticSearchService {
             log: level,
             maxRetries: 2,
             requestTimeout: 10000,
-            sniffOnStart: false
-          }
-        }
+            sniffOnStart: false,
+          },
+        },
       };
       const esTransport: ElasticsearchTransport = new ElasticsearchTransport(options.elasticsearch);
       const logger: Logger = winston.createLogger({
         exitOnError: false,
         defaultMeta: { service: name },
-        transports: [new winston.transports.Console(options.console), esTransport]
+        transports: [new winston.transports.Console(options.console), esTransport],
       });
       return logger;
     } else {

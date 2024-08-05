@@ -16,11 +16,13 @@ export class UserRepositoryImpl extends BaseRepository<UserEntity> {
   }
 
   public async getUserById(id: string): Promise<UserEntity> {
-    return await this.repository.findOneBy({ id });
+    return await this.getManager().findOneBy(UserEntity, { id });
   }
+
   public async updateUser(id: string, userEntity: UserEntity): Promise<UserEntity> {
-    return this.repository.save({ ...userEntity, id });
+    return this.getManager().save(UserEntity, { ...userEntity, id });
   }
+
   public async getUserByField(query: AtLeastOneProperty<UserEntity>): Promise<UserEntity> {
     const whereClause: FindOptionsWhere<UserEntity> = {};
 
@@ -32,10 +34,12 @@ export class UserRepositoryImpl extends BaseRepository<UserEntity> {
       }
     });
 
-    if (Object.keys(whereClause).length === 0) {
+    if (
+      Object.keys(whereClause).length === 0 ||
+      Object.values(whereClause).some(value => value === undefined)
+    ) {
       throw new Error('No se proporcionaron campos válidos para la búsqueda.');
     }
-
-    return await this.repository.findOne({ where: whereClause });
+    return await this.getManager().findOne(UserEntity, { where: whereClause });
   }
 }

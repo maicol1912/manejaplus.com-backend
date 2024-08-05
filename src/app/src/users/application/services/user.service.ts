@@ -11,13 +11,12 @@ import {
   Transactional
 } from '@app/persistence/infraestructure/adapters/persistence/decorators/transactional.decorator';
 import { UserRepositoryImpl } from '@app/users/infraestructure/adapters/persistence/repository/user-impl.repository';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { TYPE_OTP } from '@app/users/infraestructure/adapters/persistence/entity/otp.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepositoryImpl,
-    @InjectDataSource() private dataSource: DataSource,
     private authService: AuthService,
     private mailerService: MailerService
   ) {}
@@ -45,6 +44,15 @@ export class UserService {
     return SqlGlobalMapper.mapClass<UserEntity, UserModel>(userSaved, { get: ['name', 'email'] });
   }
 
+  public async incrementAttempFailed(id: string) {
+    const user = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
+      await this.userRepository.getUserById(id),
+      UserModel
+    );
+    user.incrementFailedAttempts();
+    this.userRepository.updateUser(id, SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
+  }
+
   private async generateLinkJwtToVerifyEmail(
     data: Record<string, any>
   ): Promise<Record<string, string>> {
@@ -57,14 +65,5 @@ export class UserService {
     } catch (error) {
       throw new BadRequestException('Error providing link verify email');
     }
-  }
-
-  public async incrementAttempFailed(id: string) {
-    const user = SqlGlobalMapper.mapClassMethod<UserEntity, UserModel>(
-      await this.userRepository.getUserById(id),
-      UserModel
-    );
-    user.incrementFailedAttempts();
-    this.userRepository.updateUser(id, SqlGlobalMapper.mapClass<UserModel, UserEntity>(user));
   }
 }

@@ -10,7 +10,6 @@ import { JwtStrategy } from './infraestructure/adapters/auth/strategies/jwt.stra
 import { TwilioModule } from 'nestjs-twilio';
 import { MessagingService } from './application/services/messaging.service';
 import { GoogleStrategy } from './infraestructure/adapters/auth/strategies/google.strategy';
-import { OtpService } from './application/services/otp.service';
 import { MailerService } from '@libs/mailer/mailer.service';
 
 @Module({
@@ -19,12 +18,12 @@ import { MailerService } from '@libs/mailer/mailer.service';
     PassportModule,
     JwtModule.register({
       secret: config.get<string>('AUTH.SECRET_KEY'),
-      signOptions: { expiresIn: config.get<string>('AUTH.TIME_REFRESH_TOKEN') }
+      signOptions: { expiresIn: config.get<string>('AUTH.TIME_REFRESH_TOKEN') },
     }),
     TwilioModule.forRoot({
       accountSid: config.get<string>('AUTH.TWILIO_ACCOUNT_SID'),
-      authToken: config.get<string>('AUTH.TWILIO_AUTH_TOKEN')
-    })
+      authToken: config.get<string>('AUTH.TWILIO_AUTH_TOKEN'),
+    }),
   ],
   controllers: [AuthController],
   providers: [
@@ -33,9 +32,8 @@ import { MailerService } from '@libs/mailer/mailer.service';
     JwtStrategy,
     MessagingService,
     GoogleStrategy,
-    OtpService,
-    MailerService
+    MailerService,
   ],
-  exports: [AuthService, AuthRepositoryImpl]
+  exports: [AuthService, AuthRepositoryImpl],
 })
 export class AuthenticationModule {}

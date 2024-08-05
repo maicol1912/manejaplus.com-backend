@@ -1,4 +1,5 @@
 import './tools/copyAssets';
+import './tools/check-enviroments';
 import config from 'config';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
@@ -17,7 +18,7 @@ const isProduction = () => {
 
 const nestHttpApplication = async <T>(moduleClass: T): Promise<INestApplication> => {
   return await NestFactory.create(moduleClass, {
-    snapshot: true
+    snapshot: true,
   });
 };
 
@@ -27,11 +28,11 @@ const nestHttpsApplication = async <T>(moduleClass: T): Promise<INestApplication
 
   const httpsOptions = {
     key: fs.readFileSync(keyPath),
-    cert: fs.readFileSync(certPath)
+    cert: fs.readFileSync(certPath),
   };
   return await NestFactory.create(moduleClass, {
     httpsOptions,
-    snapshot: true
+    snapshot: true,
   });
 };
 

@@ -1,4 +1,4 @@
-import { BcrypEncoder } from '@app/shared/encoders/password.encoder';
+import { EncryptionUtil } from '@app/shared/encryption/encryption';
 import { USER_CONSTANTS } from '../../application/config/constant/user.constant';
 import { AUTH_CONSTANTS } from '@app/authentication/application/config/auth.constants';
 
@@ -45,7 +45,7 @@ export class UserModel {
     return false;
   }
   public async encriptPassword() {
-    this.password = await BcrypEncoder.passwordEncoder(this.password);
+    this.password = await EncryptionUtil.hashPassword(this.password);
   }
 
   public verify() {

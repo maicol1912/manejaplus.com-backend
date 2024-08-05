@@ -3,7 +3,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { getMetadataArgsStorage } from 'typeorm';
 import { PERSISTENCE_CONSTANTS } from '../config/constant/persistence.constants';
-import { UUIDEncoder } from '@app/shared/encoders/uuid.encoder';
+import { UUIDEncoder } from '@app/shared/encryption/uuid.encoder';
 import { TenantRepositoryImpl } from '@app/persistence/infraestructure/adapters/persistence/repository/tenant.repository';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
 import { TenantModel } from '@app/persistence/domain/models/tenant.model';
@@ -38,7 +38,7 @@ export class TenantService {
         const clientDataSource = new DataSource({
           ...this.dataSource.options,
           schema: tenantModel.name,
-          entities: entitiesToLoadInClientSchema
+          entities: entitiesToLoadInClientSchema,
         } as DataSourceOptions);
 
         await clientDataSource.initialize();
@@ -85,18 +85,18 @@ export class TenantService {
       const entityMetadatas = metadataArgsStorage.tables;
 
       const entities = entityMetadatas
-        .filter(metadata => metadata.target instanceof Function)
-        .map(metadata => metadata.target as Function);
+        .filter((metadata) => metadata.target instanceof Function)
+        .map((metadata) => metadata.target as Function);
 
       const entitiesToExcludeInClientSchema = PERSISTENCE_CONSTANTS.ENTITIES_SCHEMA_PUBLIC.map(
-        entity => {
+        (entity) => {
           const classString = entity.toString();
           const match = classString.match(/class\s+(\w+)/);
           return match ? match[1] : '';
         }
       );
 
-      return entities.filter(entity => !entitiesToExcludeInClientSchema.includes(entity.name));
+      return entities.filter((entity) => !entitiesToExcludeInClientSchema.includes(entity.name));
     } catch (error) {
       console.error(error);
       return [];
@@ -109,18 +109,18 @@ export class TenantService {
       const entityMetadatas = metadataArgsStorage.tables;
 
       const entities = entityMetadatas
-        .filter(metadata => metadata.target instanceof Function)
-        .map(metadata => metadata.target as Function);
+        .filter((metadata) => metadata.target instanceof Function)
+        .map((metadata) => metadata.target as Function);
 
       const entitiesToExcludeInClientSchema = PERSISTENCE_CONSTANTS.ENTITIES_SCHEMA_PUBLIC.map(
-        entity => {
+        (entity) => {
           const classString = entity.toString();
           const match = classString.match(/class\s+(\w+)/);
           return match ? match[1] : '';
         }
       );
 
-      return entities.filter(entity => entitiesToExcludeInClientSchema.includes(entity.name));
+      return entities.filter((entity) => entitiesToExcludeInClientSchema.includes(entity.name));
     } catch (error) {
       console.error(error);
       return [];

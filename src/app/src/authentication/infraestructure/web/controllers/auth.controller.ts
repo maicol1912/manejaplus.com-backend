@@ -1,7 +1,5 @@
 import { Controller, Post, Body, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { SqlGlobalMapper } from '@app/shared/mappers/sql.mapper';
-import { UserService } from '@app/users/application/services/user.service';
-import { UserModel } from '@app/users/domain/models/user.model';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { AuthService } from '@app/authentication/application/services/auth.service';
 import { CreateRoleDto } from '../dto/create-role.dto';
@@ -10,8 +8,7 @@ import { RoleModel } from '@app/authentication/domain/models/role.model';
 import { AssignRoleDto } from '../dto/assign-role.dto';
 import { AssignRoleModel } from '@app/authentication/domain/models/assign-role.model';
 import { LoginDto } from '../dto/login.dto';
-import { LoginModel } from '@app/authentication/domain/models/login.dto';
-import { Authenticated } from '../../adapters/auth/guards/auth.guard';
+import { LoginModel } from '@app/authentication/domain/models/login.model';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -60,15 +57,20 @@ export class AuthController {
     return this.authService.refreshToken(SqlGlobalMapper.mapClass<LoginDto, LoginModel>(loginDto));
   }
 
+  @Post('unlock-account')
+  public async unlockAccount(@Body() loginDto: LoginDto) {
+    return this.authService.unlockAccount(SqlGlobalMapper.mapClass<LoginDto, LoginModel>(loginDto));
+  }
+
   @Get('verify-email/:token(*)')
   public async verifyEmail(@Param() tokenVerify: VerifyEmailDto) {
     const { token } = tokenVerify;
     return this.authService.verifyAccount(token);
   }
 
-  @Get('gretting')
-  @Authenticated()
-  public async gretting() {
-    return 'hello';
+  @Get('unlock-account/:token(*)')
+  public async unlockAccountToken(@Param() tokenVerify: VerifyEmailDto) {
+    const { token } = tokenVerify;
+    return this.authService.unlockAccountToken(token);
   }
 }
