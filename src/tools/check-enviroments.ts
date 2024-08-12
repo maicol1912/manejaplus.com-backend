@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import config from 'config';
 
-class ConfigValidator {
+class SetupEnviroments {
   private configFile: any;
   private projectRoots: string[];
 
   constructor(
     configPath: string = './config/production.json',
-    projectRoots: string[] = ['./src/app', './src/libs']
+    projectRoots: string[] = ['./src/app']
   ) {
     const resolvedConfigPath = path.resolve(configPath);
     try {
@@ -24,11 +25,9 @@ class ConfigValidator {
   private findConfigGetCalls(dir: string): string[] {
     let results: string[] = [];
     const list = fs.readdirSync(dir);
-
     for (const file of list) {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
-
       if (stat.isDirectory()) {
         results = results.concat(this.findConfigGetCalls(filePath));
       } else if (stat.isFile() && (file.endsWith('.ts') || file.endsWith('.js'))) {
@@ -53,7 +52,6 @@ class ConfigValidator {
 
   public validate(): void {
     console.log('Validating environment keys...');
-
     let configKeys: string[] = [];
     for (const root of this.projectRoots) {
       configKeys = configKeys.concat(this.findConfigGetCalls(root));
@@ -80,8 +78,18 @@ class ConfigValidator {
       console.log('Environment keys validated successfully.');
     }
   }
+
+  public mapEnviromentsLibs() {
+    const envConfig = config.get<Record<string, string>>('ENV');
+
+    if (envConfig) {
+      Object.keys(envConfig).forEach((key) => {
+        process.env[key] = envConfig[key];
+      });
+    }
+  }
 }
 
-// Ejecuta la validación inmediatamente
-const validator = new ConfigValidator();
+const validator = new SetupEnviroments();
 validator.validate();
+validator.mapEnviromentsLibs();
