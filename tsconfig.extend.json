@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@orders/*": ["src/modules/orders/*"],
+      "@orders/services/*": ["src/modules/orders/services/*"],
+      "@orders/dtos/*": ["src/modules/orders/dtos/*"],
+      "@orders/exceptions/*": ["src/modules/orders/exceptions/*"],
+
+      "@organizations/*": ["src/modules/organizations/*"],
+      "@organizations/services/*": ["src/modules/organizations/services/*"],
+      "@organizations/dtos/*": ["src/modules/organizations/dtos/*"],
+      "@organizations/exceptions/*": ["src/modules/organizations/exceptions/*"],
+
+      "@payments/*": ["src/modules/payments/*"],
+      "@payments/services/*": ["src/modules/payments/services/*"],
+      "@payments/dtos/*": ["src/modules/payments/dtos/*"],
+      "@payments/exceptions/*": ["src/modules/payments/exceptions/*"],
+
+      "@products/*": ["src/modules/products/*"],
+      "@products/services/*": ["src/modules/products/services/*"],
+      "@products/dtos/*": ["src/modules/products/dtos/*"],
+      "@products/exceptions/*": ["src/modules/products/exceptions/*"],
+
+      "@reports/*": ["src/modules/reports/*"],
+      "@reports/services/*": ["src/modules/reports/services/*"],
+      "@reports/dtos/*": ["src/modules/reports/dtos/*"],
+      "@reports/exceptions/*": ["src/modules/reports/exceptions/*"],
+
+      "@supports/*": ["src/modules/supports/*"],
+      "@supports/services/*": ["src/modules/supports/services/*"],
+      "@supports/dtos/*": ["src/modules/supports/dtos/*"],
+      "@supports/exceptions/*": ["src/modules/supports/exceptions/*"],
+
+      "@persistence/*": ["src/modules/persistence/*"],
+      "@persistence/services/*": ["src/modules/persistence/services/*"],
+      "@persistence/dtos/*": ["src/modules/persistence/dtos/*"],
+      "@persistence/exceptions/*": ["src/modules/persistence/exceptions/*"],
+
+      "@authentication/*": ["src/modules/authentication/*"],
+      "@authentication/services/*": ["src/modules/authentication/services/*"],
+      "@authentication/dtos/*": ["src/modules/authentication/dtos/*"],
+      "@authentication/exceptions/*": ["src/modules/authentication/exceptions/*"],
+
+      "@lib/aws/*": ["src/libs/aws/*"],
+      "@lib/elastick-stack/*": ["src/libs/elastick-stack/*"],
+      "@lib/gpt/*": ["src/libs/gpt/*"],
+      "@lib/oauth/*": ["src/libs/oauth/*"],
+      "@lib/postgres/*": ["src/libs/postgres/*"],
+      "@lib/rabbitmq/*": ["src/libs/rabbitmq/*"],
+      "@lib/redis/*": ["src/libs/redis/*"],
+    }
+  }
+}
