@@ -15,7 +15,7 @@ export class RoleService {
   ) {}
 
   public async createRole(roleModel: RoleModel): Promise<Partial<RoleModel>> {
-    const permissions = await this.permissionRepository.findManyByField(roleModel.permissionsId);
+    const permissions = await this.permissionRepository.findPermissionsByIdsAndActive(roleModel.permissionsId);
     this.permissionService.validatePermissions(permissions, roleModel.permissionsId);
 
     roleModel.permissions = permissions;
@@ -37,4 +37,9 @@ export class RoleService {
   public findManyByField(query:any){
     return this.roleRepository.findManyByField(query)
   }
+
+  public findRolesByIds(ids:string[]){
+    return this.roleRepository.findByIds(ids)
+  }
+
 }

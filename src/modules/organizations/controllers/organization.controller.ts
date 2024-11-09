@@ -8,11 +8,11 @@ import { SqlGlobalMapper } from 'src/modules/common/data/mappers/sql.mapper';
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Post()
-  public async createUser(@Body() createOrganizationDto: CreateOrganizationDto) {
-    const create = await this.organizationService.createOrganization(
-      SqlGlobalMapper.mapClass<CreateOrganizationDto, OrganizationModel>(createOrganizationDto)
-    );
-    return create;
-  }
+  // @Post()
+  // public async createUser(@Body() createOrganizationDto: CreateOrganizationDto) {
+  //   const create = await this.organizationService.createOrganization(
+  //     SqlGlobalMapper.mapClass<CreateOrganizationDto, OrganizationModel>(createOrganizationDto)
+  //   );
+  //   return create;
+  // }
 }

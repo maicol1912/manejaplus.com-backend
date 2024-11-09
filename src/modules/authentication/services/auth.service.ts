@@ -66,7 +66,7 @@ export class AuthService {
   @Transactional()
   public async assignRole(assignRoleModel: AssignRoleModel): Promise<Partial<UserModel>> {
     const { rolesId, userId } = assignRoleModel;
-    const roles = await this.roleService.findManyByField({ rolesId });
+    const roles = await this.roleService.findRolesByIds(rolesId);
     const user = await this.userRepository.findById(userId);
 
     this.roleService.validateRoles(roles, rolesId);

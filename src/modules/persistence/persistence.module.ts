@@ -8,8 +8,8 @@ import { RoleRepository } from "./repositories/role.repository";
 import { TenantRepository } from "./repositories/tenant.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TypeOrmConfigService } from "./config/persistence.config";
 import { TenantService } from "./core/services/tenant.service";
+import { TypeOrmConfigService } from "./config/persistence.config";
 
 
 @Module({

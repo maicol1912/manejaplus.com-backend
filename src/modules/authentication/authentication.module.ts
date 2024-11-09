@@ -16,8 +16,6 @@ import { UserVerificationService } from './services/verification.service';
 import { PersistenceModule } from '@persistence/persistence.module';
 import { UsersModule } from '../users/users.module';
 
-
-
 @Module({
   imports: [
     PersistenceModule,

@@ -42,7 +42,7 @@ export class OtpService {
   public async checkOtpCodeIsValid(typeOtp: TYPE_OTP, otpCode: string, userId: string) {
     const timeExpirationOtp = Envconfig.AUTH_TIME_OTP_VALID;
 
-    const lastOtpGeneratedByType = await this.otpRepository.findById(userId);
+    const lastOtpGeneratedByType = await this.otpRepository.findByType(typeOtp, userId);
 
     if (
       otpCode == lastOtpGeneratedByType.otp &&

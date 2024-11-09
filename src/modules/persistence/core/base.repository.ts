@@ -1,7 +1,7 @@
 import { AtLeastOneProperty } from 'src/core/types/least-one-propertie';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository, ObjectLiteral, FindOptionsWhere } from 'typeorm';
+import { DataSource, EntityManager, Repository, ObjectLiteral, FindOptionsWhere, In } from 'typeorm';
 
 @Injectable()
 export abstract class BaseRepository<T extends ObjectLiteral, ID extends keyof T> {
@@ -105,6 +105,20 @@ export abstract class BaseRepository<T extends ObjectLiteral, ID extends keyof T
       [this.idField]: id as any,
     } as FindOptionsWhere<T>;
     return this.getManager().findOne(this.entityType, {
+      where: whereCondition,
+    });
+  }
+
+  public async findByIds(ids: (string | number)[]): Promise<T[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const whereCondition: FindOptionsWhere<T> = {
+      [this.idField]: In(ids),
+    } as FindOptionsWhere<T>;
+
+    return this.getManager().find(this.entityType, {
       where: whereCondition,
     });
   }
