@@ -4,7 +4,10 @@
   "sourceRoot": "",
   "compilerOptions": {
     "watchAssets": true,
-    "assets": ["certs", "config", "assets"],
+    "assets": [
+      "certs",
+      "assets"
+    ],
     "deleteOutDir": true,
     "webpack": false
   }

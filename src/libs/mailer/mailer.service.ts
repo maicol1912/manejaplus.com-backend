@@ -44,8 +44,9 @@ export class MailerService {
           }
         }
       });
+      const path2 = path.join(__dirname, '..','..','..','assets', 'emails', template)
       return await email.send({
-        template: path.join(__dirname, 'emails', template),
+        template: path.join(__dirname, '..','..','..','assets', 'emails', template),
         message: {
           to: receiver,
           attachments: attachment

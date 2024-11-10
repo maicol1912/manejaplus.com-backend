@@ -15,9 +15,8 @@ import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useClass: TypeOrmConfigService
+      useClass: TypeOrmConfigService,
     }),
-    // ElasticSearchModule.forRoot(),
     PersistenceModule,
     ProductsModule,
     UsersModule,

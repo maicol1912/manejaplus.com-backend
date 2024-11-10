@@ -14,15 +14,14 @@ export const getTypeOrmConfig = (tenant?: string): TypeOrmModuleOptions => {
     password: Envconfig.DB_PASSWORD,
     database: Envconfig.DB_NAME,
     entities: [
-      // Entidades públicas (siempre se cargan)
       path.join(BASE_DIR, 'public', '**', '*.entity{.ts,.js}'),
-      path.join(BASE_DIR, 'custom-public', '**', '*.entity{.ts,.js}'),
       ...(tenant ? [path.join(BASE_DIR, 'custom', '**', '*.entity{.ts,.js}')] : []),
     ],
     migrations: [path.join(__dirname, '..', 'persistence', 'migrations', '**', '*{.ts,.js}')],
-    synchronize: false,
+    synchronize: true,
     logging: process.env.NODE_ENV !== 'production',
     schema: tenant || 'public',
+    autoLoadEntities: true
   };
 
   return baseConfig;

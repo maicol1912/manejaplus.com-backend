@@ -14,15 +14,15 @@ export class OrganizationService {
     private tenantService: TenantService
   ) {}
 
-  // public async createOrganization(
-  //   organizationModel: OrganizationModel
-  // ): Promise<OrganizationModel> {
-  //   organizationModel.tenant = await this.tenantService.createTenantClient(organizationModel);
-  //   return SqlGlobalMapper.mapClass<OrganizationEntity, OrganizationModel>(
-  //     await this.organizationRepository.save(
-  //       SqlGlobalMapper.mapClass<OrganizationModel, OrganizationEntity>(organizationModel)
-  //     ),
-  //     { get: ['name'] }
-  //   );
-  // }
+  public async createOrganization(
+    organizationModel: OrganizationModel
+  ): Promise<OrganizationModel> {
+    organizationModel.tenant = await this.tenantService.createTenant();
+    return SqlGlobalMapper.mapClass<OrganizationEntity, OrganizationModel>(
+      await this.organizationRepository.save(
+        SqlGlobalMapper.mapClass<OrganizationModel, OrganizationEntity>(organizationModel)
+      ),
+      { get: ['name'] }
+    );
+  }
 }

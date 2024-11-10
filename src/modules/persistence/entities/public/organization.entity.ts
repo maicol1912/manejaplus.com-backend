@@ -30,9 +30,8 @@ export class OrganizationEntity {
   @JoinColumn({ name: 'owner' })
   owner: UserEntity;
 
-  @ManyToOne(() => TenantEntity, { nullable: false })
-  @JoinColumn({ name: 'tenant' })
-  tenant: TenantEntity;
+  @Column({ unique: true, nullable: false })
+  tenant: string;
 
   @CreateDateColumn()
   createdAt: Date;

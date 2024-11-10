@@ -10,16 +10,24 @@ import { UserRepository } from "./repositories/user.repository";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TenantService } from "./core/services/tenant.service";
 import { TypeOrmConfigService } from "./config/persistence.config";
+import { OrganizationEntity } from "./entities/public/organization.entity";
+import { OtpEntity } from "./entities/public/otp.entity";
+import { PermissionEntity } from "./entities/public/permission.entity";
+import { RoleEntity } from "./entities/public/role.entity";
+import { TenantEntity } from "./entities/public/tenant.entity";
+import { UserEntity } from "./entities/public/user.entity";
 
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      useClass: TypeOrmConfigService,
-    }),
     TypeOrmModule.forFeature([
-      
-    ]),
+      OrganizationEntity,
+      OtpEntity,
+      PermissionEntity,
+      RoleEntity,
+      TenantEntity,
+      UserEntity
+    ])
   ],
   controllers: [],
   providers: [
